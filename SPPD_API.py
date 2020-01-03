@@ -244,7 +244,18 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 def getTeamWarInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/teamwar/init'
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/teamwar/init'
+	PAYLOAD='{}'
+	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+	response_body=r.text
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def getTeamWarUpdate():
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/teamwar/update'
 	PAYLOAD='{}'
 	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
 	response_body=r.text
