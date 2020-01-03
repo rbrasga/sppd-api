@@ -9,7 +9,7 @@ import threading
 
 ###INPUT###
 TIMEZONE=-8*60*60 #-8H (PST)
-USERNAME = "a.hacks@gmail.com"
+USERNAME = ""
 PASSWORD = ""
 
 #We only want to make a single call at a time
@@ -19,6 +19,9 @@ def setUsernamePassword(user_name,password):
 	global USERNAME, PASSWORD
 	USERNAME=user_name
 	PASSWORD=password
+	if "@" not in USERNAME:
+		print("Error: You need to type in your username (email address)")
+		sys.exit(1)
 
 ###AUTHENTICATION###
 MASTER_TOKEN_PATH='MASTERTOKEN.txt'
@@ -27,9 +30,6 @@ UBI_TOKEN_PATH='UBITOKEN.txt'
 
 NAME_ON_PLATFORM=None
 
-if USERNAME == "":
-	print("Error: You need to type in your username (email address)")
-	sys.exit(1)
 	
 #ANDROID_ID=str(getnode())+"0"
 ANDROID_ID="39e94ca643b94360"
@@ -46,14 +46,14 @@ HEADERS = {
 	"User-Agent" : "Dalvik/2.1.0 (Linux; U; Android 7.1.1; Pixel XL Build/NOF26V)",
 }
 
-def checkLoggedIn():
+def checkLoggedIn(force_connect=False):
 	global UBI_TOKEN
 	if UBI_TOKEN==None or UBI_EXPIRATION < time.time():
-		UBI_TOKEN=authenticateAll()
+		UBI_TOKEN=authenticateAll(force_connect=force_connect)
 		updateHeaders()
 	
 def updateHeaders():
-	global HEADERS
+	global HEADERS,UBI_TOKEN
 	if UBI_TOKEN == None:
 		print("Error: You were unable to get a token from Ubisoft!")
 		return
@@ -119,7 +119,8 @@ def authenticateGoogle(username,androidId,masterToken, user_agent='Dalvik/2.1.0 
 		print("Unable to get Google oAuth 'Expiry' attribute")
 		print(f"response_body: {response_body}")
 		return split_dict["Auth"],time.time()+2*60*60
-	return split_dict["Auth"], int(split_dict["Expiry"])
+	expiration_time=int(split_dict["Expiry"])# - 3600 #One hour buffer?
+	return split_dict["Auth"], expiration_time
 
 #"expiration":"2019-11-23T09:18:04.0671070Z"
 def authenticateUbisoft(authToken):
@@ -157,7 +158,7 @@ def authenticateUbisoft(authToken):
 	expiration_time=int(time.mktime(struct_time))+TIMEZONE-3600 #One hour buffer?
 	return result["ticket"], expiration_time, result["nameOnPlatform"]
 
-def authenticateAll(oauth_token_only=False):
+def authenticateAll(oauth_token_only=False,force_connect=False):
 	if not oauth_token_only and not os.path.isfile(MASTER_TOKEN_PATH) and PASSWORD == "":
 		print("Error: You need to type in a password")
 		sys.exit(1)
@@ -192,9 +193,8 @@ def authenticateAll(oauth_token_only=False):
 			if masterName == USERNAME:
 				OAUTH_EXPIRATION=int(split_result[1])
 				authToken=split_result[2]
-	if OAUTH_EXPIRATION < time.time():
+	if OAUTH_EXPIRATION < time.time() or force_connect:
 		authToken,OAUTH_EXPIRATION=authenticateGoogle(USERNAME,ANDROID_ID,masterToken)
-		if authToken == None: return None
 		fh=open(OAUTH_TOKEN_PATH, 'w')
 		fh.write(f'{USERNAME},{OAUTH_EXPIRATION},{authToken}')
 		fh.close()
@@ -202,6 +202,7 @@ def authenticateAll(oauth_token_only=False):
 		last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(OAUTH_EXPIRATION))
 		print(f"OAUTH_EXPIRATION: {last_refresh_pretty}")
 		#print(f"authToken: {authToken}, OAUTH_EXPIRATION: {OAUTH_EXPIRATION}")
+	if authToken == None: return None
 	
 	global UBI_EXPIRATION
 	ubiToken=None
@@ -215,7 +216,7 @@ def authenticateAll(oauth_token_only=False):
 			if masterName == USERNAME:
 				UBI_EXPIRATION=int(split_result[1])
 				ubiToken=split_result[2]
-	if UBI_EXPIRATION < time.time():
+	if UBI_EXPIRATION < time.time() or force_connect:
 		result="code=" + authToken
 		result=base64.b64encode(result.encode('utf-8'))
 		result=result.decode("utf-8")
