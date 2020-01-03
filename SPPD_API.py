@@ -25,6 +25,7 @@ MASTER_TOKEN_PATH='MASTERTOKEN.txt'
 OAUTH_TOKEN_PATH='OAUTHTOKEN.txt'
 UBI_TOKEN_PATH='UBITOKEN.txt'
 
+NAME_ON_PLATFORM=None
 
 if USERNAME == "":
 	print("Error: You need to type in your username (email address)")
@@ -142,15 +143,15 @@ def authenticateUbisoft(authToken):
 		result = json.loads(response_body)
 	except Exception as e:
 		print(str(e))
-	print(f"response_body: {response_body}")
+	#print(f"response_body: {response_body}")
 	if "ticket" not in result or "nameOnPlatform" not in result:
 		print("Unable to get Ubi Token")
 		print(f"response_body: {response_body}")
-		return None,time.time()
+		return None,int(time.time()),None
 	if "expiration" not in result.keys():
 		print("Unable to get Ubi Token 'expiration' attribute")
 		print(f"response_body: {response_body}")
-		return result["ticket"],time.time()+2*60*60
+		return result["ticket"],time.time()+2*60*60, result["nameOnPlatform"]
 	expiration_str=result["expiration"][:-2] #skip the last 2 characters
 	struct_time=time.strptime(expiration_str, "%Y-%m-%dT%H:%M:%S.%f")
 	expiration_time=int(time.mktime(struct_time))+TIMEZONE-3600 #One hour buffer?
@@ -177,6 +178,7 @@ def authenticateAll(oauth_token_only=False):
 		fh.write(f'{USERNAME},{masterToken}\n')
 		fh.close()
 	#print(f"masterToken: {masterToken}")
+	print(f"Found masterToken: You don't need a password to login anymore.")
 	
 	global OAUTH_EXPIRATION
 	authToken=None
@@ -218,7 +220,8 @@ def authenticateAll(oauth_token_only=False):
 		result=base64.b64encode(result.encode('utf-8'))
 		result=result.decode("utf-8")
 		if oauth_token_only: return result
-		ubiToken,UBI_EXPIRATION,masterName=authenticateUbisoft(result)
+		global NAME_ON_PLATFORM
+		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM=authenticateUbisoft(result)
 		if ubiToken == None: return None
 		fh=open(UBI_TOKEN_PATH, 'w')
 		fh.write(f'{USERNAME},{UBI_EXPIRATION},{ubiToken}')
