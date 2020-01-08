@@ -1,3 +1,28 @@
+# SPPD_API.py
+# Created 12/02/19
+# Updated 01/07/20
+# Current Version: 0.01
+#----------------------
+
+import os, sys
+new_path=sys.path
+folder=os.getcwd()
+if folder not in new_path:
+	new_path.append(folder)
+try:
+	folder=os.path.dirname(os.path.realpath(__file__))
+	if os.path.isdir(folder) and folder not in new_path:
+		new_path.append(folder)
+except:
+	pass
+try:
+	folder=os.path.dirname(sys.executable)
+	if os.path.isdir(folder) and folder not in new_path:
+		new_path.append(folder)
+except:
+	pass
+sys.path=new_path
+
 from uuid import getnode
 import requests
 import base64
@@ -45,6 +70,21 @@ HEADERS = {
 	"X-Device" : "131652800",
 	"User-Agent" : "Dalvik/2.1.0 (Linux; U; Android 7.1.1; Pixel XL Build/NOF26V)",
 }
+
+def updatePaths():
+	for pathx in sys.path:
+		folder=os.path.join(pathx,'MASTERTOKEN.txt')
+		if os.path.exists(folder):
+			global MASTER_TOKEN_PATH
+			MASTER_TOKEN_PATH=folder
+		folder=os.path.join(pathx,'OAUTHTOKEN.txt')
+		if os.path.exists(folder):
+			global OAUTH_TOKEN_PATH
+			OAUTH_TOKEN_PATH=folder
+		folder=os.path.join(pathx,'UBITOKEN.txt')
+		if os.path.exists(folder):
+			global UBI_TOKEN_PATH
+			UBI_TOKEN_PATH=folder
 
 def checkLoggedIn(force_connect=False):
 	global UBI_TOKEN
@@ -159,6 +199,7 @@ def authenticateUbisoft(authToken):
 	return result["ticket"], expiration_time, result["nameOnPlatform"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
+	updatePaths()
 	if not oauth_token_only and not os.path.isfile(MASTER_TOKEN_PATH) and PASSWORD == "":
 		print("Error: You need to type in a password")
 		sys.exit(1)
