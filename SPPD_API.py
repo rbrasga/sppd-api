@@ -327,11 +327,17 @@ def getTeamID(team_name):
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
-	
+
+#Seasons (since Stars to MMR Switch)
+#https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A
+#/playerstats2/leaderboards/pvp_ladder_leaderboard/8/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
+#/playerstats2/leaderboards/pvp_ladder_leaderboard/9/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
+#/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/playerstats2/leaderboards/pvp_ladder_leaderboard/8/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	
 	r = requests.get(HOST, headers=HEADERS)
 	response_body=r.text
 	API_LOCK.notify_all()
