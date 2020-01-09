@@ -4,6 +4,7 @@
 # Current Version: 0.01
 #----------------------
 
+import pytz, datetime
 import os, sys
 new_path=sys.path
 folder=os.getcwd()
@@ -33,7 +34,6 @@ import json
 import threading
 
 ###INPUT###
-TIMEZONE=-8*60*60 #-8H (PST)
 USERNAME = ""
 PASSWORD = ""
 
@@ -195,8 +195,15 @@ def authenticateUbisoft(authToken):
 		return result["ticket"],time.time()+2*60*60, result["nameOnPlatform"]
 	expiration_str=result["expiration"][:-2] #skip the last 2 characters
 	struct_time=time.strptime(expiration_str, "%Y-%m-%dT%H:%M:%S.%f")
-	expiration_time=int(time.mktime(struct_time))+TIMEZONE-3600 #One hour buffer?
-	return result["ticket"], expiration_time, result["nameOnPlatform"]
+	expiration_time_local=int(time.mktime(struct_time))-1800 #One hour buffer?	
+	local = pytz.utc
+	naive=datetime.datetime.fromtimestamp(expiration_time_local)
+	local_dt = local.localize(naive, is_dst=None)
+	utc_dt = local_dt.astimezone(pytz.utc)
+	expiration_time_utc=utc_dt.timestamp()
+	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
+	print(f"oAuth Expiration Time: {utc_string_time}")
+	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
 	updatePaths()
