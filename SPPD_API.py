@@ -315,6 +315,17 @@ def getTeamWarUpdate():
 	API_LOCK.release()
 	return response_body
 	
+def getTeamInit():
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/init'
+	PAYLOAD='{}'
+	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+	response_body=r.text
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
 def getCardRequests():
 	API_LOCK.acquire()
 	checkLoggedIn()
