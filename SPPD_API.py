@@ -33,6 +33,8 @@ import gpsoauth
 import json
 import threading
 
+SPACES_SANDBOX='spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A'
+
 ###INPUT###
 USERNAME = ""
 PASSWORD = ""
@@ -202,7 +204,7 @@ def authenticateUbisoft(authToken):
 	utc_dt = local_dt.astimezone(pytz.utc)
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
-	print(f"oAuth Expiration Time: {utc_string_time}")
+	print(f"UbiToken Expiration Time: {utc_string_time}")
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
@@ -286,9 +288,12 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 def getTVTLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTVTLeaderboardAtOffset failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -296,10 +301,13 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 def getTeamWarInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/teamwar/init'
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/init'
 	PAYLOAD='{}'
-	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
-	response_body=r.text
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamWarInit failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -307,10 +315,13 @@ def getTeamWarInit():
 def getTeamWarUpdate():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/teamwar/update'
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/update'
 	PAYLOAD='{}'
-	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
-	response_body=r.text
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamWarUpdate failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -318,10 +329,13 @@ def getTeamWarUpdate():
 def getTeamInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/init'
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/init'
 	PAYLOAD='{}'
-	r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
-	response_body=r.text
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamInit failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -329,9 +343,13 @@ def getTeamInit():
 def getCardRequests():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/requests'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/requests'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getCardRequests failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -339,9 +357,13 @@ def getCardRequests():
 def getTeamDetails(team_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/teams/{team_id}'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/teams/{team_id}'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamDetails failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -349,25 +371,32 @@ def getTeamDetails(team_id):
 def getTeamID(team_name):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/search?limit=50&offset=0&name={team_name}'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/search?limit=50&offset=0&name={team_name}'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamID failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
 
 #Seasons (since Stars to MMR Switch)
-#https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A
+#https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/8/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/9/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
-	
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getGlobalLeaderboardAtOffset failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -375,9 +404,13 @@ def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 def getUserDetails(user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A/team/members/{user_id}'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/members/{user_id}'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getUserDetails failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -386,8 +419,12 @@ def getUserName(user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
 	HOST=f'https://public-ubiservices.ubi.com/v1/profiles?profileId={user_id}'
-	r = requests.get(HOST, headers=HEADERS)
-	response_body=r.text
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getUserName failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
