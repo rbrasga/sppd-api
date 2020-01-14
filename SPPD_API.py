@@ -204,6 +204,7 @@ def authenticateUbisoft(authToken):
 	utc_dt = local_dt.astimezone(pytz.utc)
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
+	print(f"authenticateUbisoft {result}")
 	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
 
@@ -301,7 +302,7 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 def getTeamWarInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/init'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/init'
 	PAYLOAD='{}'
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
@@ -315,7 +316,7 @@ def getTeamWarInit():
 def getTeamWarUpdate():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/update'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/update'
 	PAYLOAD='{}'
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
@@ -329,7 +330,7 @@ def getTeamWarUpdate():
 def getTeamInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/init'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/init'
 	PAYLOAD='{}'
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
@@ -343,7 +344,7 @@ def getTeamInit():
 def getCardRequests():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST='https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/requests'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/requests'
 	response_body = ""
 	try:
 		r = requests.get(HOST, headers=HEADERS)
