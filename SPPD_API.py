@@ -204,7 +204,7 @@ def authenticateUbisoft(authToken):
 	utc_dt = local_dt.astimezone(pytz.utc)
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
-	print(f"UbiToken Expiration Time: {utc_string_time}")
+	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
@@ -466,6 +466,7 @@ if __name__ == '__main__':
 	#Run something
 	#getGlobalLeaderboardAtOffset()
 	#print(getTeamID('F2P Whales'))
-	print(getTeamWarInit())
+	#setUsernamePassword("email@gmail.com", "P@SSW0RD")
+	#print(getTeamWarInit())
 	pass
 	
