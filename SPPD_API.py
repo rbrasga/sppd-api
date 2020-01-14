@@ -204,7 +204,6 @@ def authenticateUbisoft(authToken):
 	utc_dt = local_dt.astimezone(pytz.utc)
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
-	print(f"authenticateUbisoft {result}")
 	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
 
