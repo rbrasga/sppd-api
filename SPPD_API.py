@@ -289,6 +289,7 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
+	response_body=""
 	try:
 		r = requests.get(HOST, headers=HEADERS)
 		response_body=r.text
@@ -303,6 +304,7 @@ def getTeamWarInit():
 	checkLoggedIn()
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/init'
 	PAYLOAD='{}'
+	response_body=""
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
@@ -317,6 +319,7 @@ def getTeamWarUpdate():
 	checkLoggedIn()
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/update'
 	PAYLOAD='{}'
+	response_body=""
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
@@ -331,6 +334,7 @@ def getTeamInit():
 	checkLoggedIn()
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/init'
 	PAYLOAD='{}'
+	response_body=""
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
@@ -378,6 +382,92 @@ def getTeamID(team_name):
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamID failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def getTeamApplications(ingame_team_id):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamApplications failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+'''
+*RESPONSE*
+{"applications": [{"profileId": "55b29b30-f0df-4caf-b28a-295ea7537fde", "creationDate": "2020-01-15T06:47:51+00:00", "clanId": 132473, "plea": ""}], "total": 1, "limit": 50, "offset": 0}
+'''
+def getTeamApplications(ingame_team_id):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamApplications failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def acceptApplication(ingame_team_id,user_id):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
+	PAYLOAD='{}'
+	response_body = ""
+	try:
+		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.acceptApplication failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def rejectApplication(ingame_team_id,user_id):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
+	response_body = ""
+	try:
+		r = requests.delete(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.rejectApplication failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_leader, leader
+	API_LOCK.acquire()
+	global HEADERS
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/members/profiles/{user_id}'
+	PAYLOAD='{"role":%s}' % role
+	response_body = ""
+	#HEADERS["Ubi-AppId"] = "f64d70a5-e962-445e-998c-9f4df6fb1156"
+	#HEADERS["X-Unity-Version"] = "2018.4.3f1"
+	#HEADERS["X-Version"] = "442"
+	#HEADERS["X-Platform"] = "0"
+	#HEADERS["X-Device"] = "934806656"
+	#HEADERS["User-Agent"] = "southpark/711398 CFNetwork/1120 Darwin/19.0.0"
+	#HEADERS["Accept"] = "*/*"
+	#HEADERS["Accept-Encoding"] = "gzip, deflate, br"
+	#HEADERS["Accept-Language"] = "en-us"
+	#HEADERS["Content-Type"] = "application/json"
+	try:
+		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.setTeamRole failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -466,7 +556,7 @@ if __name__ == '__main__':
 	#Run something
 	#getGlobalLeaderboardAtOffset()
 	#print(getTeamID('F2P Whales'))
-	#setUsernamePassword("email@gmail.com", "P@SSW0RD")
+	setUsernamePassword("email@gmail.com", "password")
 	#print(getTeamWarInit())
 	pass
 	
