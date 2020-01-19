@@ -56,6 +56,7 @@ OAUTH_TOKEN_PATH='OAUTHTOKEN.txt'
 UBI_TOKEN_PATH='UBITOKEN.txt'
 
 NAME_ON_PLATFORM=None
+PROFILE_ID=None
 
 	
 #ANDROID_ID=str(getnode())+"0"
@@ -187,7 +188,7 @@ def authenticateUbisoft(authToken):
 	except Exception as e:
 		print(str(e))
 	#print(f"response_body: {response_body}")
-	if "ticket" not in result or "nameOnPlatform" not in result:
+	if "ticket" not in result or "nameOnPlatform" not in result or "profileId" not in result:
 		print("Unable to get Ubi Token")
 		print(f"response_body: {response_body}")
 		return None,int(time.time()),None
@@ -205,7 +206,7 @@ def authenticateUbisoft(authToken):
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
 	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
-	return result["ticket"], expiration_time_utc, result["nameOnPlatform"]
+	return result["ticket"], expiration_time_utc, result["nameOnPlatform"], result["profileId"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
 	updatePaths()
@@ -271,8 +272,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		result=base64.b64encode(result.encode('utf-8'))
 		result=result.decode("utf-8")
 		if oauth_token_only: return result
-		global NAME_ON_PLATFORM
-		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM=authenticateUbisoft(result)
+		global NAME_ON_PLATFORM,PROFILE_ID
+		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM,PROFILE_ID=authenticateUbisoft(result)
 		if ubiToken == None: return None
 		fh=open(UBI_TOKEN_PATH, 'w')
 		fh.write(f'{USERNAME},{UBI_EXPIRATION},{ubiToken}')
@@ -399,10 +400,7 @@ def getTeamApplications(ingame_team_id):
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
-'''
-*RESPONSE*
-{"applications": [{"profileId": "55b29b30-f0df-4caf-b28a-295ea7537fde", "creationDate": "2020-01-15T06:47:51+00:00", "clanId": 132473, "plea": ""}], "total": 1, "limit": 50, "offset": 0}
-'''
+
 def getTeamApplications(ingame_team_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
