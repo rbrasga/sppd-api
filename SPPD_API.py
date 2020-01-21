@@ -151,8 +151,12 @@ def authenticateGoogle(username,androidId,masterToken, user_agent='Dalvik/2.1.0 
 		"Host": "android.googleapis.com",
 		"Connection": "Keep-Alive"
 	}
-	r = requests.post(HOST, data=payload_str, headers=HEADERS)
-	response_body=r.text
+	response_body=""
+	try:
+		r = requests.post(HOST, data=payload_str, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.authenticateGoogle failed")
 	split_dict=parse_auth_response(response_body)
 	if "Auth" not in split_dict.keys():
 		print("Unable to get Google oAuth Token")
@@ -180,8 +184,12 @@ def authenticateUbisoft(authToken):
 		"Connection": "Keep-Alive",
 		"Accept-Encoding": "gzip"
 	}
-	r = requests.post(HOST, data=payload_str, headers=HEADERS)
-	response_body=r.text
+	response_body=""
+	try:
+		r = requests.post(HOST, data=payload_str, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.authenticateUbisoft failed")
 	result=dict()
 	try:
 		result = json.loads(response_body)
@@ -449,7 +457,7 @@ def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_lead
 	global HEADERS
 	checkLoggedIn()
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/members/profiles/{user_id}'
-	PAYLOAD='{"role":%s}' % role
+	PAYLOAD='{"role":"%s"}' % role
 	response_body = ""
 	#HEADERS["Ubi-AppId"] = "f64d70a5-e962-445e-998c-9f4df6fb1156"
 	#HEADERS["X-Unity-Version"] = "2018.4.3f1"
