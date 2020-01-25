@@ -199,11 +199,11 @@ def authenticateUbisoft(authToken):
 	if "ticket" not in result or "nameOnPlatform" not in result or "profileId" not in result:
 		print("Unable to get Ubi Token")
 		print(f"response_body: {response_body}")
-		return None,int(time.time()),None
+		return None,int(time.time()),None,None
 	if "expiration" not in result.keys():
 		print("Unable to get Ubi Token 'expiration' attribute")
 		print(f"response_body: {response_body}")
-		return result["ticket"],time.time()+2*60*60, result["nameOnPlatform"]
+		return result["ticket"],time.time()+2*60*60, result["nameOnPlatform"], result["profileId"]
 	expiration_str=result["expiration"][:-2] #skip the last 2 characters
 	struct_time=time.strptime(expiration_str, "%Y-%m-%dT%H:%M:%S.%f")
 	expiration_time_local=int(time.mktime(struct_time))-1800 #One hour buffer?	
