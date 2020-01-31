@@ -161,11 +161,11 @@ def authenticateGoogle(username,androidId,masterToken, user_agent='Dalvik/2.1.0 
 	if "Auth" not in split_dict.keys():
 		print("Unable to get Google oAuth Token")
 		print(f"response_body: {response_body}")
-		return None,time.time()
+		return None,int(time.time())
 	if "Expiry" not in split_dict.keys():
 		print("Unable to get Google oAuth 'Expiry' attribute")
 		print(f"response_body: {response_body}")
-		return split_dict["Auth"],time.time()+2*60*60
+		return split_dict["Auth"],int(time.time())+2*60*60
 	expiration_time=int(split_dict["Expiry"])# - 3600 #One hour buffer?
 	return split_dict["Auth"], expiration_time
 
