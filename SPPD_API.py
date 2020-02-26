@@ -338,6 +338,10 @@ def getTeamWarUpdate():
 	API_LOCK.release()
 	return response_body
 	
+'''
+#Get The Game Session ID
+"game_sessions": [{"writable": 123, "cluster": "gamesrv02-mob.ubi.com", "expires": 123, "id": "xxx"}, {"writable": 123, "cluster": "gamesrv02-mob.ubi.com", "expires": 123, "id": "xxx"}]
+'''
 def getTeamInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
@@ -474,6 +478,42 @@ def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_lead
 		response_body=r.text
 	except:
 		print("SPPD_API.setTeamRole failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def getUbiMobiAccessToken(profileid):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://gamecfg-mob.ubi.com/profile/?action=register&productid=682&deviceuid={profileid}'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getUbiMobiAccessToken failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+
+#Get the ingame_team_id from [already grabbed]
+#Get the ubimobi_access_token from getUbiMobiAccessToken
+#Get the game_session_id from getTeamInit
+#A call without start/end returns the very last 100 or so.
+#  - Go backwards from there until you reach start=1, end = x?
+def getTeamChat(ingame_team_id,ubimobi_access_token,game_session_id,start=-1,end=-1):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://gamesrv02-mob.ubi.com/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket=clan_chat_{ingame_team_id}'
+	if start != -1 and end != -1:
+		HOST+=f'&start={start}&end={end}'
+	PAYLOAD='{}'
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamChat failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
