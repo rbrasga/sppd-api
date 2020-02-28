@@ -501,10 +501,10 @@ def getUbiMobiAccessToken(profileid):
 #Get the game_session_id from getTeamInit
 #A call without start/end returns the very last 100 or so.
 #  - Go backwards from there until you reach start=1, end = x?
-def getTeamChat(ingame_team_id,ubimobi_access_token,game_session_id,start=-1,end=-1):
+def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end=-1):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://gamesrv02-mob.ubi.com/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket=clan_chat_{ingame_team_id}'
+	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}'
 	if start != -1 and end != -1:
 		HOST+=f'&start={start}&end={end}'
 	PAYLOAD='{}'
