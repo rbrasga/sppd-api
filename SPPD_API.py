@@ -413,16 +413,16 @@ def getTeamApplications(ingame_team_id):
 	API_LOCK.release()
 	return response_body
 
-def getTeamApplications(ingame_team_id):
+def getTeamwarHistory():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/history'
 	response_body = ""
 	try:
 		r = requests.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
-		print("SPPD_API.getTeamApplications failed")
+		print("SPPD_API.getTeamwarHistory failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
