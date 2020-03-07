@@ -426,6 +426,36 @@ def getTeamwarHistory():
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
+
+def getAllEvents():
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/update'
+	PAYLOAD='{"language":"en"}'
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+		print(f"response_body {response_body}")
+	except:
+		print("SPPD_API.getAllEvents failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def getTeamEventParticipation(event):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/events/{event}/teams/leaderboard'
+	response_body = ""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getTeamEventParticipation failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
 	
 def acceptApplication(ingame_team_id,user_id):
 	API_LOCK.acquire()
