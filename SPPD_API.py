@@ -436,7 +436,6 @@ def getAllEvents():
 	try:
 		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
-		print(f"response_body {response_body}")
 	except:
 		print("SPPD_API.getAllEvents failed")
 	API_LOCK.notify_all()
