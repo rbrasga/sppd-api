@@ -555,10 +555,11 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/11/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/12/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/13/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
+#/playerstats2/leaderboards/pvp_ladder_leaderboard/14/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/13/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/14/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
 	response_body = ""
 	try:
 		r = requests.get(HOST, headers=HEADERS)
