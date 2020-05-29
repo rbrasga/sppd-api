@@ -613,6 +613,23 @@ def postQuestClose(event, quest):
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
+	
+def missionInit(language):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/mission/init'
+	PAYLOAD='{"language":"%s"}' % language
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.missionInit failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
 """
 #Note: You can't log in with just any google account, it must be one that is already registered with the game or you get this error message:
 
