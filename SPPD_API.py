@@ -285,23 +285,28 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 	#Only update the Auth Token if the UbiToken has expired, which implies the Auth Token expired.
 	if force_connect or UBI_EXPIRATION < time.time():
 		authToken,OAUTH_EXPIRATION=authenticateGoogle(USERNAME,ANDROID_ID,masterToken)
-		#Create temp file
-		fh, abs_path = mkstemp()
-		with os.fdopen(fh,'w') as new_file:
-			with open(OAUTH_TOKEN_PATH) as old_file:
-				never_found = True
-				replace_str=f'{USERNAME},{OAUTH_EXPIRATION},{authToken}'
-				for line in old_file:
-					found_match=False
-					if USERNAME in line:
-						new_file.write(replace_str + "\n")
-						never_found=False
-					else: new_file.write(line + "\n")
-				if never_found: new_file.write(replace_str + "\n")
-		#Remove original file
-		os.remove(OAUTH_TOKEN_PATH)
-		#Move new file
-		move(abs_path, OAUTH_TOKEN_PATH)
+		if os.path.isfile(OAUTH_TOKEN_PATH):
+			#Create temp file
+			fh, abs_path = mkstemp()
+			with os.fdopen(fh,'w') as new_file:
+				with open(OAUTH_TOKEN_PATH) as old_file:
+					never_found = True
+					replace_str=f'{USERNAME},{OAUTH_EXPIRATION},{authToken}'
+					for line in old_file:
+						found_match=False
+						if USERNAME in line:
+							new_file.write(replace_str + "\n")
+							never_found=False
+						else: new_file.write(line + "\n")
+					if never_found: new_file.write(replace_str + "\n")
+			#Remove original file
+			os.remove(OAUTH_TOKEN_PATH)
+			#Move new file
+			move(abs_path, OAUTH_TOKEN_PATH)
+		else:
+			fh=open(OAUTH_TOKEN_PATH, 'w')
+			fh.write(f'{USERNAME},{OAUTH_EXPIRATION},{authToken}\n')
+			fh.close()
 		if OAUTH_EXPIRATION > 0:
 			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(OAUTH_EXPIRATION))
 			print(f"Updated OAUTH_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
@@ -316,23 +321,28 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		global NAME_ON_PLATFORM,PROFILE_ID
 		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM,PROFILE_ID=authenticateUbisoft(result)
 		if ubiToken == None: return None
-		#Create temp file
-		fh, abs_path = mkstemp()
-		with os.fdopen(fh,'w') as new_file:
-			with open(UBI_TOKEN_PATH) as old_file:
-				never_found = True
-				replace_str=f'{USERNAME},{UBI_EXPIRATION},{ubiToken}'
-				for line in old_file:
-					found_match=False
-					if USERNAME in line:
-						new_file.write(replace_str + "\n")
-						never_found=False
-					else: new_file.write(line + "\n")
-				if never_found: new_file.write(replace_str + "\n")
-		#Remove original file
-		os.remove(UBI_TOKEN_PATH)
-		#Move new file
-		move(abs_path, UBI_TOKEN_PATH)
+		if os.path.isfile(UBI_TOKEN_PATH):
+			#Create temp file
+			fh, abs_path = mkstemp()
+			with os.fdopen(fh,'w') as new_file:
+				with open(UBI_TOKEN_PATH) as old_file:
+					never_found = True
+					replace_str=f'{USERNAME},{UBI_EXPIRATION},{ubiToken}\n'
+					for line in old_file:
+						found_match=False
+						if USERNAME in line:
+							new_file.write(replace_str + "\n")
+							never_found=False
+						else: new_file.write(line + "\n")
+					if never_found: new_file.write(replace_str + "\n")
+			#Remove original file
+			os.remove(UBI_TOKEN_PATH)
+			#Move new file
+			move(abs_path, UBI_TOKEN_PATH)
+		else:
+			fh=open(UBI_TOKEN_PATH, 'w')
+			fh.write(f'{USERNAME},{UBI_EXPIRATION},{ubiToken}\n')
+			fh.close()
 		if UBI_EXPIRATION > 0:
 			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(UBI_EXPIRATION))
 			print(f"Updated UBI_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
