@@ -549,21 +549,27 @@ def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_lead
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/members/profiles/{user_id}'
 	PAYLOAD='{"role":"%s"}' % role
 	response_body = ""
-	#HEADERS["Ubi-AppId"] = "f64d70a5-e962-445e-998c-9f4df6fb1156"
-	#HEADERS["X-Unity-Version"] = "2018.4.3f1"
-	#HEADERS["X-Version"] = "442"
-	#HEADERS["X-Platform"] = "0"
-	#HEADERS["X-Device"] = "934806656"
-	#HEADERS["User-Agent"] = "southpark/711398 CFNetwork/1120 Darwin/19.0.0"
-	#HEADERS["Accept"] = "*/*"
-	#HEADERS["Accept-Encoding"] = "gzip, deflate, br"
-	#HEADERS["Accept-Language"] = "en-us"
-	#HEADERS["Content-Type"] = "application/json"
 	try:
 		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.setTeamRole failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def setTeamDetails(ingame_team_id,name,countryCode,new_kid_level,description,banner,applicationStatus):
+	API_LOCK.acquire()
+	global HEADERS
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}'
+	PAYLOAD='{"name":"%s","countryCode":"%s","metadata":{"new_kid_level":%d,"description":"%s","banner":%d},"applicationStatus":"%s"}' % (name,countryCode,new_kid_level,description,banner,applicationStatus)
+	response_body = ""
+	try:
+		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.setTeamDetails failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
@@ -652,6 +658,21 @@ def getUserName(user_id):
 		response_body=r.text
 	except:
 		print("SPPD_API.getUserName failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+
+def questStatus(event):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/quest_events/{event}/status'
+	response_body=""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.postQuestClose failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
