@@ -32,6 +32,8 @@ from urllib.parse import urlencode
 import gpsoauth
 import json
 import threading
+from tempfile import mkstemp
+from shutil import move
 
 SPACES_SANDBOX='spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A'
 
@@ -73,6 +75,18 @@ HEADERS = {
 	"X-Device" : "131652800",
 	"User-Agent" : "Dalvik/2.1.0 (Linux; U; Android 7.1.1; Pixel XL Build/NOF26V)",
 }
+
+def setStoredUser(username):
+	global UBI_TOKEN,UBI_EXPIRATION, OAUTH_EXPIRATION
+	global NAME_ON_PLATFORM, PROFILE_ID
+	global USERNAME, PASSWORD
+	UBI_TOKEN=None
+	UBI_EXPIRATION = -1
+	OAUTH_EXPIRATION = -1
+	NAME_ON_PLATFORM=None
+	PROFILE_ID=None
+	USERNAME = username
+	PASSWORD = ""
 
 def updatePaths():
 	for pathx in sys.path:
@@ -217,6 +231,7 @@ def authenticateUbisoft(authToken):
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"], result["profileId"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
+	global USERNAME
 	updatePaths()
 	if not oauth_token_only and not os.path.isfile(MASTER_TOKEN_PATH) and PASSWORD == "":
 		print("Error: You need to type in a password")
@@ -237,44 +252,62 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		fh=open(MASTER_TOKEN_PATH, 'a')
 		fh.write(f'{USERNAME},{masterToken}\n')
 		fh.close()
-	#print(f"masterToken: {masterToken}")
-	print(f"Found masterToken: You don't need a password to login anymore.")
+		print(f"Added masterToken, USERNAME: {USERNAME}: You don't need a password to login anymore.")
 	
+	#Read the Stored Auth Token
 	global OAUTH_EXPIRATION
 	authToken=None
 	if os.path.isfile(OAUTH_TOKEN_PATH) and OAUTH_EXPIRATION == -1:
 		fh=open(OAUTH_TOKEN_PATH, 'r')
-		result=fh.read()
+		for line in fh:
+			split_result=line.strip("\n").split(",")
+			if len(split_result)==3:
+				masterName=split_result[0]
+				if masterName == USERNAME:
+					OAUTH_EXPIRATION=int(split_result[1])
+					authToken=split_result[2]
 		fh.close()
-		split_result=result.split(",")
-		if len(split_result)==3:
-			masterName=split_result[0]
-			if masterName == USERNAME:
-				OAUTH_EXPIRATION=int(split_result[1])
-				authToken=split_result[2]
-	if OAUTH_EXPIRATION < time.time() or force_connect:
-		authToken,OAUTH_EXPIRATION=authenticateGoogle(USERNAME,ANDROID_ID,masterToken)
-		fh=open(OAUTH_TOKEN_PATH, 'w')
-		fh.write(f'{USERNAME},{OAUTH_EXPIRATION},{authToken}')
-		fh.close()
-	if OAUTH_EXPIRATION > 0:
-		last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(OAUTH_EXPIRATION))
-		print(f"OAUTH_EXPIRATION: {last_refresh_pretty}")
-		#print(f"authToken: {authToken}, OAUTH_EXPIRATION: {OAUTH_EXPIRATION}")
-	if authToken == None: return None
-	
+				
+	#Read the Stored Ubi Token
 	global UBI_EXPIRATION
 	ubiToken=None
 	if os.path.isfile(UBI_TOKEN_PATH) and UBI_EXPIRATION == -1:
 		fh=open(UBI_TOKEN_PATH, 'r')
-		result=fh.read()
+		for line in fh:
+			split_result=line.strip("\n").split(",")
+			if len(split_result)==3:
+				masterName=split_result[0]
+				if masterName == USERNAME:
+					UBI_EXPIRATION=int(split_result[1])
+					ubiToken=split_result[2]
 		fh.close()
-		split_result=result.split(",")
-		if len(split_result)==3:
-			masterName=split_result[0]
-			if masterName == USERNAME:
-				UBI_EXPIRATION=int(split_result[1])
-				ubiToken=split_result[2]
+	
+	#Only update the Auth Token if the UbiToken has expired, which implies the Auth Token expired.
+	if force_connect or UBI_EXPIRATION < time.time():
+		authToken,OAUTH_EXPIRATION=authenticateGoogle(USERNAME,ANDROID_ID,masterToken)
+		#Create temp file
+		fh, abs_path = mkstemp()
+		with os.fdopen(fh,'w') as new_file:
+			with open(OAUTH_TOKEN_PATH) as old_file:
+				never_found = True
+				replace_str=f'{USERNAME},{OAUTH_EXPIRATION},{authToken}'
+				for line in old_file:
+					found_match=False
+					if USERNAME in line:
+						new_file.write(replace_str + "\n")
+						never_found=False
+					else: new_file.write(line + "\n")
+				if never_found: new_file.write(replace_str + "\n")
+		#Remove original file
+		os.remove(OAUTH_TOKEN_PATH)
+		#Move new file
+		move(abs_path, OAUTH_TOKEN_PATH)
+		if OAUTH_EXPIRATION > 0:
+			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(OAUTH_EXPIRATION))
+			print(f"Updated OAUTH_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
+	if authToken == None: return None
+	
+	#Update Ubi Token if it has expired.
 	if UBI_EXPIRATION < time.time() or force_connect:
 		result="code=" + authToken
 		result=base64.b64encode(result.encode('utf-8'))
@@ -283,12 +316,26 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		global NAME_ON_PLATFORM,PROFILE_ID
 		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM,PROFILE_ID=authenticateUbisoft(result)
 		if ubiToken == None: return None
-		fh=open(UBI_TOKEN_PATH, 'w')
-		fh.write(f'{USERNAME},{UBI_EXPIRATION},{ubiToken}')
-		fh.close()
-	if UBI_EXPIRATION > 0:
-		last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(UBI_EXPIRATION))
-		print(f"UBI_EXPIRATION: {last_refresh_pretty} USERNAME: {USERNAME}")
+		#Create temp file
+		fh, abs_path = mkstemp()
+		with os.fdopen(fh,'w') as new_file:
+			with open(UBI_TOKEN_PATH) as old_file:
+				never_found = True
+				replace_str=f'{USERNAME},{UBI_EXPIRATION},{ubiToken}'
+				for line in old_file:
+					found_match=False
+					if USERNAME in line:
+						new_file.write(replace_str + "\n")
+						never_found=False
+					else: new_file.write(line + "\n")
+				if never_found: new_file.write(replace_str + "\n")
+		#Remove original file
+		os.remove(UBI_TOKEN_PATH)
+		#Move new file
+		move(abs_path, UBI_TOKEN_PATH)
+		if UBI_EXPIRATION > 0:
+			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(UBI_EXPIRATION))
+			print(f"Updated UBI_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
 	return ubiToken
 	
 	
