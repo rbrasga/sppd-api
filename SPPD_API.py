@@ -291,14 +291,13 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 			with os.fdopen(fh,'w') as new_file:
 				with open(OAUTH_TOKEN_PATH) as old_file:
 					never_found = True
-					replace_str=f'{USERNAME},{OAUTH_EXPIRATION},{authToken}'
+					replace_str=f'{USERNAME},{OAUTH_EXPIRATION},{authToken}\n'
 					for line in old_file:
-						found_match=False
 						if USERNAME in line:
-							new_file.write(replace_str + "\n")
+							new_file.write(replace_str)
 							never_found=False
-						else: new_file.write(line + "\n")
-					if never_found: new_file.write(replace_str + "\n")
+						else: new_file.write(line)
+					if never_found: new_file.write(replace_str)
 			#Remove original file
 			os.remove(OAUTH_TOKEN_PATH)
 			#Move new file
