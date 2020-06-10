@@ -330,10 +330,10 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 					for line in old_file:
 						found_match=False
 						if USERNAME in line:
-							new_file.write(replace_str + "\n")
+							new_file.write(replace_str)
 							never_found=False
-						else: new_file.write(line + "\n")
-					if never_found: new_file.write(replace_str + "\n")
+						else: new_file.write(line)
+					if never_found: new_file.write(replace_str)
 			#Remove original file
 			os.remove(UBI_TOKEN_PATH)
 			#Move new file
