@@ -93,13 +93,6 @@ def setStoredUser(username):
 	PROFILE_ID=None
 	USERNAME = username
 	PASSWORD = ""
-	#Reset Sessions
-	global PDC_PUBLIC_UBISERVICES,GAMECFG_MOB
-	global PUBLIC_UBISERVICES,GETTEAMCHAT_CLUSTER
-	PDC_PUBLIC_UBISERVICES=requests.Session()
-	GAMECFG_MOB=requests.Session()
-	PUBLIC_UBISERVICES=requests.Session()
-	GETTEAMCHAT_CLUSTER={} #dictionary of sessions to cluster URLs
 
 def updatePaths():
 	for pathx in sys.path:
@@ -128,13 +121,6 @@ def updateHeaders():
 		print("Error: You were unable to get a token from Ubisoft!")
 		return
 	HEADERS["Authorization"] = f"Ubi_v1 t={UBI_TOKEN}"
-	#Reset Sessions
-	global PDC_PUBLIC_UBISERVICES,GAMECFG_MOB
-	global PUBLIC_UBISERVICES,GETTEAMCHAT_CLUSTER
-	PDC_PUBLIC_UBISERVICES=requests.Session()
-	GAMECFG_MOB=requests.Session()
-	PUBLIC_UBISERVICES=requests.Session()
-	GETTEAMCHAT_CLUSTER={} #dictionary of sessions to cluster URLs
 
 def parse_auth_response(text):
 	response_data = {}
@@ -220,7 +206,8 @@ def authenticateUbisoft(authToken):
 	}
 	response_body=""
 	try:
-		r = requests.post(HOST, data=payload_str, headers=HEADERS)
+		global PUBLIC_UBISERVICES
+		r = PUBLIC_UBISERVICES.post(HOST, data=payload_str, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.authenticateUbisoft failed")
@@ -794,4 +781,4 @@ if __name__ == '__main__':
 	setUsernamePassword("email@gmail.com", "password")
 	#print(getTeamWarInit())
 	pass
-	
+
