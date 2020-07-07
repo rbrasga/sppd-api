@@ -59,6 +59,8 @@ UBI_TOKEN_PATH='UBITOKEN.txt'
 
 NAME_ON_PLATFORM=None
 PROFILE_ID=None
+SESSION_ID=None
+SPACE_ID=None
 
 	
 #ANDROID_ID=str(getnode())+"0"
@@ -228,7 +230,7 @@ def authenticateUbisoft(authToken):
 	expiration_time_utc=int(utc_dt.timestamp())
 	utc_string_time = utc_dt.strftime("%Y-%m-%d %H:%M%z")
 	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
-	return result["ticket"], expiration_time_utc, result["nameOnPlatform"], result["profileId"]
+	return result["ticket"], expiration_time_utc, result["nameOnPlatform"], result["profileId"], result["sessionId"], result["spaceId"]
 
 def authenticateAll(oauth_token_only=False,force_connect=False):
 	global USERNAME
@@ -317,8 +319,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		result=base64.b64encode(result.encode('utf-8'))
 		result=result.decode("utf-8")
 		if oauth_token_only: return result
-		global NAME_ON_PLATFORM,PROFILE_ID
-		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM,PROFILE_ID=authenticateUbisoft(result)
+		global NAME_ON_PLATFORM,PROFILE_ID,SESSION_ID,SPACE_ID
+		ubiToken,UBI_EXPIRATION,NAME_ON_PLATFORM,PROFILE_ID,SESSION_ID,SPACE_ID=authenticateUbisoft(result)
 		if ubiToken == None: return None
 		if os.path.isfile(UBI_TOKEN_PATH):
 			#Create temp file
@@ -708,38 +710,81 @@ def missionInit(language):
 	API_LOCK.release()
 	return response_body
 	
-"""
-#Note: You can't log in with just any google account, it must be one that is already registered with the game or you get this error message:
+#PVE
 
-"message":
-"The server has thrown exception because it cannot fulfill the request: Google Error / Web api. Google Error / Web api. An unexpected web api error code was received. Details: The requested player with ID me was not found..
-Stace Trace:    at Ubisoft.Common.Http.SingletonProtectedHttp.<GetContentAsync>d__17.MoveNext()
---- End of stack trace from previous location where exception was thrown ---
-   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
-   at Ubisoft.Common.Http.SingletonProtectedHttp.<>c__DisplayClass12_0.<<HttpSendAsync>b__0>d.MoveNext()
-   --- End of stack trace from previous location where exception was thrown ---
-   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
-   at Ubisoft.Common.CircuitBreaker.Deprecated.AsyncCircuitBreaker.<ExecuteAsync>d__19`1.MoveNext()
-   --- End of stack trace from previous location where exception was thrown ---
-   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
-   at Ubisoft.Common.Http.SingletonProtectedHttp.<CallWithCircuitBreakerAsync>d__16.MoveNext()
-   --- End of stack trace from previous location where exception was thrown ---
-   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
-   at Ubisoft.Common.Http.SingletonProtectedHttp.<HttpSendAsync>d__12.MoveNext()
-   --- End of stack trace from previous location where exception was thrown ---
-   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
-   at Ubisoft.Common.Google.GoogleHandler.<GetPlayerInfoAsync>d__10.MoveNext()",
-"errorCode":6,"httpCode":504,"errorContext":"Profiles Client",
-"moreInfo":"",
-"transactionTime":"2019-11-21T07:06:33.2246609Z",
-"transactionId":"d324006f-cee0-4563-9f16-ea7194aba964",
-"environment":"PROD"
-"""
+def getLevelStatus(level):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/level/status/{level}'
+	response_body=""
+	try:
+		r = requests.get(HOST, headers=HEADERS)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.getTVTLeaderboardAtOffset failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+
+def doPreBattleStart(payload_zero=False):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://msr-public-ubiservices.ubi.com/v2/profiles/{PROFILE_ID}/events'
+	current_time = time.strftime('%Y-%m-%dT%H:%M:%S.000Z', time.localtime(time.time()+3600*7-7)) #+7hours
+	current_time_two = time.strftime('%Y-%m-%dT%H:%M:%S.000Z', time.localtime(time.time()+3600*7)) #+7hours
+	PAYLOAD='{"info":{"spaceId":"%s","userId":"%s","playerSessionId":"%s","gameSessionId":"%s"},"events":[{"seqId":7,"createdDate":"%s","type":"custom.player.contentDownload","contexts":[],"obj":{"status":"Started","packId":"AllAssetBundles_724018_5","previousPackId":"AllAssetBundles_724018_5","connectionType":"Wifi","size":0,"retryCount":0,"duration":0,"downloadType":"AllAssetBundles","menuState":"LoadingScene"}},{"seqId":8,"createdDate":"%s","type":"custom.player.contentDownload","contexts":[],"obj":{"status":"Completed","packId":"AllAssetBundles_724018_5","previousPackId":"AllAssetBundles_724018_5","connectionType":"Wifi","size":0,"retryCount":0,"duration":0,"downloadType":"AllAssetBundles","menuState":"LoadingScene"}},{"seqId":9,"createdDate":"%s","type":"custom.player.mainHubLoadTime","contexts":[],"obj":{"downloadRequiredSplash":1,"downloadRequiredMap":1,"splashLoadTime":10377,"mapSceneLoadTime":6899,"totalLoadTime":17276}}]}' % (SPACE_ID,PROFILE_ID,SESSION_ID,SESSION_ID,current_time,current_time_two,current_time_two)
+	if payload_zero:
+		PAYLOAD = '{"info":{"spaceId":"%s","userId":"%s","playerSessionId":"%s","gameSessionId":"%s"},"events":[{"seqId":0,"createdDate":"%s","type":"game.start","contexts":[],"typeData":{"machineId":"","gameVersion":"Full","buildVersion":"724018","usSdkVersion":"Rest"},"obj":{"subVersion":"WorldLaunch","playerID":"a_4337984077181499910","deviceManufacturer":"samsung","deviceModel":"samsung SM-N950N","platformVersion":"Android OS 5.1.1 / API-22 (NMF26X/500191219)","pushnotif":0,"typeNotif":null,"providerAuth":"GooglePlay","loginType":"Pure FP","installDate":"1579244142439"}},{"seqId":1,"createdDate":"%s","type":"player.start","contexts":[],"typeData":{"abtesting":null},"obj":{"concurrentProfileId":null,"platformType":"LoginGooglePlayGames","playerProgress":"17"}},{"seqId":2,"createdDate":"%s","type":"custom.player.contentDownload","contexts":[],"obj":{"status":"Started","packId":"AllAssetBundles_724018_5","previousPackId":"","connectionType":"Wifi","size":-1,"retryCount":0,"duration":0,"downloadType":"AllAssetBundles","menuState":"LoadingScene"}},{"seqId":3,"createdDate":"%s","type":"custom.player.contentDownload","contexts":[],"obj":{"status":"Completed","packId":"AllAssetBundles_724018_5","previousPackId":"","connectionType":"Wifi","size":-1,"retryCount":0,"duration":0,"downloadType":"AllAssetBundles","menuState":"LoadingScene"}},{"seqId":4,"createdDate":"%s","type":"custom.player.endSession","contexts":[],"obj":{"sessionLength":2254,"isPayingSession":0,"totalPlaytime":1385319,"bpType":"Purchased","Season":"1833"}},{"seqId":5,"createdDate":"%s","type":"custom.player.startSession","contexts":[],"obj":{"userCountry":"US","playerID":"1284563704","coinBalance":23123,"pvpBalance":5443,"hardBalance":1606,"totalRevenue":0,"totalPurchases":0,"sessionCount":1359,"playerLevel":17,"pvpMatchesPlayed":8593,"pvpRank":5286,"teamId":"225303","legendaryRank":0,"bpType":"Purchased","Season":"1833"}},{"seqId":6,"createdDate":"%s","type":"game.localization","contexts":[],"typeData":{"menuLanguage":"en-US","audioLanguage":"en-US","areSubtitlesEnabled":true,"subtitlesLanguage":"en-US","platformLanguage":"en-US"},"obj":{"userCountry":"US"}}]}' %(SPACE_ID,PROFILE_ID,SESSION_ID,SESSION_ID,current_time,current_time,current_time,current_time,current_time_two,current_time_two,current_time_two)
+	print(PAYLOAD)
+	tmp_headers = HEADERS
+	if "Ubi-SessionId" not in tmp_headers:
+		tmp_headers['Ubi-SessionId']=SESSION_ID
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=tmp_headers)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.doPreBattleStart failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+
+def doBattleStart(level):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/battle/start'
+	current_time = int(time.time())
+	PAYLOAD='{"mode":0,"level_id":%d,"checksum":"47d8a37109b8bdcf0ce64a840e2c7d2ae09fbf8879aecf4532e2cadf9c0f4b37","time":%d,"deck":0,"opponent":""}' % (level,current_time)
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.doBattleStart failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def doBattleFinish():
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/battle/finish'
+	PAYLOAD='{"score":0,"remaining_time":142,"platform":1,"mode":0,"result":1,"deck":0,"level_id":1327,"checksum":"8e360cab77bf1cb728d0fd2cec8c6ee71fd27db8d80722a21884468411ea3c80","opponent":"","cards":[{"id":1,"kills":[],"data":[39,0,false]},{"id":203,"kills":[34,34,33,34,1319],"data":[44,0,true]},{"id":1886,"kills":[],"data":[51,0,true]},{"id":1813,"kills":[34],"data":[53,0,true]},{"id":61,"kills":[],"data":[62,0,true]},{"id":55,"kills":[34],"data":[78,0,true]},{"id":1824,"kills":[],"data":[82,0,true]}],"stats":{"hero_attacks":15,"hero_kills":1},"s":7427879}'
+	response_body=""
+	try:
+		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+		print(response_body)
+	except:
+		print("SPPD_API.doBattleFinish failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+
+#Note: You can't log in with just any google account, it must be one that is already registered with the game or you get this error message:
 
 if __name__ == '__main__':
 	#Run something
