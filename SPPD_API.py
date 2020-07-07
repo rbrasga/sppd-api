@@ -78,6 +78,12 @@ HEADERS = {
 	"User-Agent" : "Dalvik/2.1.0 (Linux; U; Android 7.1.1; Pixel XL Build/NOF26V)",
 }
 
+#Global Sessions! Yeah Buddy!
+PDC_PUBLIC_UBISERVICES=requests.Session()
+GAMECFG_MOB=requests.Session()
+PUBLIC_UBISERVICES=requests.Session()
+GETTEAMCHAT_CLUSTER={} #dictionary of sessions to cluster URLs
+
 def setStoredUser(username):
 	global UBI_TOKEN,UBI_EXPIRATION, OAUTH_EXPIRATION
 	global NAME_ON_PLATFORM, PROFILE_ID
@@ -202,7 +208,8 @@ def authenticateUbisoft(authToken):
 	}
 	response_body=""
 	try:
-		r = requests.post(HOST, data=payload_str, headers=HEADERS)
+		global PUBLIC_UBISERVICES
+		r = PUBLIC_UBISERVICES.post(HOST, data=payload_str, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.authenticateUbisoft failed")
@@ -358,7 +365,8 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
 	response_body=""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTVTLeaderboardAtOffset failed")
@@ -373,7 +381,8 @@ def getTeamWarInit():
 	PAYLOAD='{}'
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamWarInit failed")
@@ -388,7 +397,8 @@ def getTeamWarUpdate():
 	PAYLOAD='{}'
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamWarUpdate failed")
@@ -407,7 +417,8 @@ def getTeamInit():
 	PAYLOAD='{}'
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamInit failed")
@@ -421,7 +432,8 @@ def getCardRequests():
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/requests'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getCardRequests failed")
@@ -435,7 +447,8 @@ def getTeamDetails(team_id):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/teams/{team_id}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamDetails failed")
@@ -449,7 +462,8 @@ def getTeamID(team_name):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/search?limit=50&offset=0&name={team_name}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamID failed")
@@ -463,7 +477,8 @@ def getTeamApplications(ingame_team_id):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamApplications failed")
@@ -477,7 +492,8 @@ def getTeamwarHistory():
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/history'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamwarHistory failed")
@@ -492,7 +508,8 @@ def getAllEvents():
 	PAYLOAD='{"language":"en"}'
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getAllEvents failed")
@@ -506,7 +523,8 @@ def getTeamEventParticipation(event):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/events/{event}/teams/leaderboard'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamEventParticipation failed")
@@ -521,7 +539,8 @@ def acceptApplication(ingame_team_id,user_id):
 	PAYLOAD='{}'
 	response_body = ""
 	try:
-		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.put(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.acceptApplication failed")
@@ -535,7 +554,8 @@ def rejectApplication(ingame_team_id,user_id):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
 	response_body = ""
 	try:
-		r = requests.delete(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.delete(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.rejectApplication failed")
@@ -551,7 +571,8 @@ def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_lead
 	PAYLOAD='{"role":"%s"}' % role
 	response_body = ""
 	try:
-		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.put(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.setTeamRole failed")
@@ -567,7 +588,8 @@ def setTeamDetails(ingame_team_id,name,countryCode,new_kid_level,description,ban
 	PAYLOAD='{"name":"%s","countryCode":"%s","metadata":{"new_kid_level":%d,"description":"%s","banner":%d},"applicationStatus":"%s"}' % (name,countryCode,new_kid_level,description,banner,applicationStatus)
 	response_body = ""
 	try:
-		r = requests.put(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.put(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.setTeamDetails failed")
@@ -581,7 +603,8 @@ def getUbiMobiAccessToken(profileid):
 	HOST=f'https://gamecfg-mob.ubi.com/profile/?action=register&productid=682&deviceuid={profileid}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global GAMECFG_MOB
+		r = GAMECFG_MOB.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getUbiMobiAccessToken failed")
@@ -603,7 +626,11 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 	PAYLOAD='{}'
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global GETTEAMCHAT_CLUSTER
+		if cluster not in GETTEAMCHAT_CLUSTER:
+			GETTEAMCHAT_CLUSTER[cluster] = requests.Session()
+		current_session = GETTEAMCHAT_CLUSTER[cluster]
+		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamChat failed")
@@ -627,7 +654,8 @@ def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/15/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getGlobalLeaderboardAtOffset failed")
@@ -641,7 +669,8 @@ def getUserDetails(user_id):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/members/{user_id}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getUserDetails failed")
@@ -655,7 +684,8 @@ def getUserName(user_id):
 	HOST=f'https://public-ubiservices.ubi.com/v1/profiles?profileId={user_id}'
 	response_body = ""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PUBLIC_UBISERVICES
+		r = PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 	except:
 		print("SPPD_API.getUserName failed")
@@ -669,7 +699,8 @@ def questStatus(event):
 	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/quest_events/{event}/status'
 	response_body=""
 	try:
-		r = requests.get(HOST, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
 		response_body=r.text
 		print(response_body)
 	except:
@@ -685,7 +716,8 @@ def postQuestClose(event, quest):
 	PAYLOAD='{"quests":[%d]}' % quest
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 		print(response_body)
 	except:
@@ -701,7 +733,8 @@ def missionInit(language):
 	PAYLOAD='{"language":"%s"}' % language
 	response_body=""
 	try:
-		r = requests.post(HOST, data=PAYLOAD, headers=HEADERS)
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 		print(response_body)
 	except:
@@ -793,4 +826,4 @@ if __name__ == '__main__':
 	setUsernamePassword("email@gmail.com", "password")
 	#print(getTeamWarInit())
 	pass
-	
+
