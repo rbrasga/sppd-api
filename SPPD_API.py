@@ -292,6 +292,7 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 	#Only update the Auth Token if the UbiToken has expired, which implies the Auth Token expired.
 	if force_connect or UBI_EXPIRATION < time.time():
 		authToken,OAUTH_EXPIRATION=authenticateGoogle(USERNAME,ANDROID_ID,masterToken)
+		if authToken == None: return None
 		if os.path.isfile(OAUTH_TOKEN_PATH):
 			#Create temp file
 			fh, abs_path = mkstemp()
