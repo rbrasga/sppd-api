@@ -706,7 +706,7 @@ def questStatus(event):
 		response_body=r.text
 		print(response_body)
 	except:
-		print("SPPD_API.postQuestClose failed")
+		print("SPPD_API.questStatus failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
