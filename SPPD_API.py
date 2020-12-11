@@ -746,6 +746,22 @@ def missionInit(language):
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
+
+def getPVPPack():
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/pvp2/cardpack/claim'
+	PAYLOAD='{}'
+	response_body=""
+	try:
+		global PDC_PUBLIC_UBISERVICES
+		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.getPVPPack failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
 	
 """
 #Note: You can't log in with just any google account, it must be one that is already registered with the game or you get this error message:
