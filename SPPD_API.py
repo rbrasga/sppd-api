@@ -35,6 +35,7 @@ import threading
 from tempfile import mkstemp
 from shutil import move
 
+DEBUG=False
 SPACES_SANDBOX='spaces/99e34ec4-be44-4a31-a0a2-64982ae01744/sandboxes/DRAFI_IP_LNCH_PDC_A'
 
 ###INPUT###
@@ -237,8 +238,10 @@ def authenticateUbisoft(authToken):
 	#print(f"UbiToken Expiration Time (UTC): {utc_string_time}")
 	return result["ticket"], expiration_time_utc, result["nameOnPlatform"], result["profileId"]
 
-def authenticateAll(oauth_token_only=False,force_connect=False):
-	global USERNAME
+def authenticateAll(oauth_token_only=False,force_connect=False,tmp_user=None,tmp_pass=None):
+	if tmp_user != None and tmp_pass != None:
+		setUsernamePassword(tmp_user, tmp_pass)
+	global USERNAME, PASSWORD
 	updatePaths()
 	if not oauth_token_only and not os.path.isfile(MASTER_TOKEN_PATH) and PASSWORD == "":
 		print("Error: You need to type in a password")
@@ -259,7 +262,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 		fh=open(MASTER_TOKEN_PATH, 'a')
 		fh.write(f'{USERNAME},{masterToken}\n')
 		fh.close()
-		print(f"Added masterToken, USERNAME: {USERNAME}: You don't need a password to login anymore.")
+		if DEBUG:
+			print(f"Added masterToken, USERNAME: {USERNAME}: You don't need a password to login anymore.")
 	
 	#Read the Stored Auth Token
 	global OAUTH_EXPIRATION
@@ -316,7 +320,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 			fh.close()
 		if OAUTH_EXPIRATION > 0:
 			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(OAUTH_EXPIRATION))
-			print(f"Updated OAUTH_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
+			if DEBUG:
+				print(f"Updated OAUTH_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
 	if authToken == None: return None
 	
 	#Update Ubi Token if it has expired.
@@ -352,7 +357,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False):
 			fh.close()
 		if UBI_EXPIRATION > 0:
 			last_refresh_pretty=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(UBI_EXPIRATION))
-			print(f"Updated UBI_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
+			if DEBUG:
+				print(f"Updated UBI_EXPIRATION: {last_refresh_pretty}, USERNAME: {USERNAME}")
 	return ubiToken
 	
 	
@@ -797,10 +803,20 @@ Stace Trace:    at Ubisoft.Common.Http.SingletonProtectedHttp.<GetContentAsync>d
 """
 
 if __name__ == '__main__':
+	args = sys.argv
+	if len(args) == 3:
+		authenticateAll(tmp_user=args[1],tmp_pass=args[2])
+		print(f'{UBI_TOKEN},{UBI_EXPIRATION}')
+		sys.stdout.flush()
+	else:
+		authenticateAll()
+		print(f'{UBI_TOKEN},{UBI_EXPIRATION}')
+		sys.stdout.flush()
+	sys.exit()
 	#Run something
 	#getGlobalLeaderboardAtOffset()
 	#print(getTeamID('F2P Whales'))
-	setUsernamePassword("email@gmail.com", "password")
+	#setUsernamePassword("email@gmail.com", "password")
 	#print(getTeamWarInit())
-	pass
+	#pass
 
