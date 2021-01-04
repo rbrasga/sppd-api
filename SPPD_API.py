@@ -4,7 +4,7 @@
 # Current Version: 0.01
 #----------------------
 
-import pytz, datetime
+import pytz, datetime, calendar
 import os, sys
 new_path=sys.path
 folder=os.getcwd()
@@ -643,25 +643,31 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 	API_LOCK.release()
 	return response_body
 
+def getFirstTuesdayOfMonth(your_date):
+	# Get the first "day" of the month and the number of days in the month
+	month_range = calendar.monthrange(your_date.year, your_date.month)
+
+	date_corrected = datetime.date(your_date.year, your_date.month, 1)
+	delta = (calendar.TUESDAY - month_range[0]) % 7
+	return date_corrected + datetime.timedelta(days = delta)
+	
+def getSeasonOffset():
+	currDate = datetime.date.today()
+	firstTuesday = getFirstTuesdayOfMonth(currDate)
+	if firstTuesday > currDate:
+		currDate = currDate - datetime.timedelta(days = 7)
+		firstTuesday = getFirstTuesdayOfMonth(currDate)
+	season = firstTuesday.month + 12 * (firstTuesday.year - 2019) - 4 #Season started in May.
+	return season
+
 #Seasons (since Stars to MMR Switch)
 #https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/8/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/9/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/10/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/11/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/12/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/13/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/14/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/15/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/16/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/17/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/18/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
-#/playerstats2/leaderboards/pvp_ladder_leaderboard/19/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/20/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/20/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	season = getSeasonOffset()
+	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/{season}/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -805,12 +811,12 @@ Stace Trace:    at Ubisoft.Common.Http.SingletonProtectedHttp.<GetContentAsync>d
 if __name__ == '__main__':
 	args = sys.argv
 	if len(args) == 3:
-		authenticateAll(tmp_user=args[1],tmp_pass=args[2])
-		print(f'{UBI_TOKEN},{UBI_EXPIRATION}')
+		ubitoken=authenticateAll(tmp_user=args[1],tmp_pass=args[2])
+		print(f'{ubitoken},{UBI_EXPIRATION}')
 		sys.stdout.flush()
 	else:
-		authenticateAll()
-		print(f'{UBI_TOKEN},{UBI_EXPIRATION}')
+		ubitoken=authenticateAll()
+		print(f'{ubitoken},{UBI_EXPIRATION}')
 		sys.stdout.flush()
 	sys.exit()
 	#Run something
