@@ -657,7 +657,7 @@ def getSeasonOffset():
 	if firstTuesday > currDate:
 		currDate = currDate - datetime.timedelta(days = 7)
 		firstTuesday = getFirstTuesdayOfMonth(currDate)
-	season = firstTuesday.month + 12 * (firstTuesday.year - 2019) - 4 #Season started in May.
+	season = firstTuesday.month + 12 * (firstTuesday.year - 2019) - 3 #Season started in April.
 	return season
 
 #Seasons (since Stars to MMR Switch)
@@ -825,4 +825,3 @@ if __name__ == '__main__':
 	#setUsernamePassword("email@gmail.com", "password")
 	#print(getTeamWarInit())
 	#pass
-
