@@ -212,7 +212,7 @@ def authenticateUbisoft(authToken):
 		response_body=r.text
 	except:
 		print("SPPD_API.authenticateUbisoft failed")
-	result=dict()
+	result={}
 	try:
 		result = json.loads(response_body)
 	except Exception as e:
