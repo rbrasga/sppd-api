@@ -131,15 +131,17 @@ Before going open source, I had dozens of developers using this and recommending
 
 ## FAQ
 
-- **How do I do *specifically* so and so?**
-    - No problem! Just do this.
+- **Can I use my iOS account?**
+    - No. Not until someone can spare some time to be the first person in the world to reverse engineer Apple Gamecenter's oAuth.
 
+- **Can I call Python code from NodeJS?**
+    - Where there's a will, [there's a way](https://discord.com/channels/@me/694341743780560966/795113507141976064)
 ---
 
 ## Support
 
-- File an issue here
-- Join the Discord Server
+- [File an issue here](https://github.com/rbrasga/sppd-api/issues)
+- [Join the Discord Server](https://discord.gg/j4Wchza)
 
 ---
 
