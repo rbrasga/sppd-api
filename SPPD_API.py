@@ -67,6 +67,7 @@ ANDROID_ID="39e94ca643b94360"
 UBI_TOKEN=None
 UBI_EXPIRATION = -1
 OAUTH_EXPIRATION = -1
+MASTER_TOKEN=None
 
 HEADERS = {
 	"Ubi-AppId" : "b5f1619b-8612-4966-a083-2fac253e2090",
@@ -264,6 +265,8 @@ def authenticateAll(oauth_token_only=False,force_connect=False,tmp_user=None,tmp
 		fh.close()
 		if DEBUG:
 			print(f"Added masterToken, USERNAME: {USERNAME}: You don't need a password to login anymore.")
+	global MASTER_TOKEN
+	MASTER_TOKEN=masterToken
 	
 	#Read the Stored Auth Token
 	global OAUTH_EXPIRATION
@@ -639,6 +642,44 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 		response_body=r.text
 	except:
 		print("SPPD_API.getTeamChat failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&start={start}&longpoll=10'
+	PAYLOAD='{}'
+	response_body=""
+	try:
+		global GETTEAMCHAT_CLUSTER
+		if cluster not in GETTEAMCHAT_CLUSTER:
+			GETTEAMCHAT_CLUSTER[cluster] = requests.Session()
+		current_session = GETTEAMCHAT_CLUSTER[cluster]
+		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.pollTeamChat failed")
+	API_LOCK.notify_all()
+	API_LOCK.release()
+	return response_body
+	
+def sendTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,profile_id,URL_ENCODED_MSG):
+	API_LOCK.acquire()
+	checkLoggedIn()
+	HOST=f'https://{cluster}/?action=set&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&data=%7b%22type%22%3a0%2c%22profile_id%22%3a%{profile_id}%22%2c%22time%22%3a{int(time.time())}%2c%22message%22%3a%22{URL_ENCODED_MSG}%22%7d'
+	PAYLOAD='{}'
+	response_body=""
+	try:
+		global GETTEAMCHAT_CLUSTER
+		if cluster not in GETTEAMCHAT_CLUSTER:
+			GETTEAMCHAT_CLUSTER[cluster] = requests.Session()
+		current_session = GETTEAMCHAT_CLUSTER[cluster]
+		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
+		response_body=r.text
+	except:
+		print("SPPD_API.pollTeamChat failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
