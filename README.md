@@ -31,7 +31,7 @@
 
 [![GPSoAuth](http://www.google.com/logos/doodles/2015/googles-new-logo-5078286822539264.3-hp2x.gif)]()
 
-- Login using [gpsoauth](https://github.com/simon-weber/gpsoauth). Google Player Services oAuth Protocol
+- Login using [gpsoauth](https://github.com/simon-weber/gpsoauth). Google Play Services oAuth Protocol
 - Stores necessary tokens until they expire.
 - Supports multiple simultaneous tokens
 - Before each request, the tokens are verified to be valid, or if invalid, then refreshed.
@@ -136,6 +136,11 @@ Before going open source, I had dozens of developers using this and recommending
 
 - **Can I call Python code from NodeJS?**
     - Where there's a will, [there's a way](https://discord.com/channels/@me/694341743780560966/795113507141976064)
+
+- **Is this legal or can I be banned?**
+    - Short Answer: No
+    - Longer Answer: Probably not. Other APIs to access Ubisoft services that are nearly identical to this one already exist: https://github.com/Seems2Legit/Rainbow-Six-Siege-Player-Stats-API
+
 ---
 
 ## Support
