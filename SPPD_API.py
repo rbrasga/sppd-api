@@ -136,7 +136,7 @@ def parse_auth_response(text):
 def getMasterToken(email,password,android_id):
 	response_body=gpsoauth.perform_master_login(email,password,android_id)
 	if "Token" not in response_body:
-		print("Unable to get Auth Token")
+		print("Unable to get Master Token")
 		print(f"response_body: {response_body}")
 		return None
 	return response_body["Token"]
@@ -646,10 +646,12 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 	API_LOCK.release()
 	return response_body
 	
-def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start):
+#Get a response after up to <longpoll> seconds
+#If someone responds in the middle of the longpoll, it returns instantly.
+def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start,longpoll=10):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&start={start}&longpoll=10'
+	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&start={start}&longpoll={longpoll}'
 	PAYLOAD='{}'
 	response_body=""
 	try:
@@ -668,7 +670,7 @@ def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start):
 def sendTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,profile_id,URL_ENCODED_MSG):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://{cluster}/?action=set&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&data=%7b%22type%22%3a0%2c%22profile_id%22%3a%{profile_id}%22%2c%22time%22%3a{int(time.time())}%2c%22message%22%3a%22{URL_ENCODED_MSG}%22%7d'
+	HOST=f'https://{cluster}/?action=set&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&data=%7b%22type%22%3a0%2c%22profile_id%22%3a%22{profile_id}%22%2c%22time%22%3a{int(time.time())}%2c%22message%22%3a%22{URL_ENCODED_MSG}%22%7d'
 	PAYLOAD='{}'
 	response_body=""
 	try:
@@ -679,7 +681,7 @@ def sendTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,profile_id,
 		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
 		response_body=r.text
 	except:
-		print("SPPD_API.pollTeamChat failed")
+		print("SPPD_API.sendTeamChat failed")
 	API_LOCK.notify_all()
 	API_LOCK.release()
 	return response_body
