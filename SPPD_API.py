@@ -116,6 +116,7 @@ def checkLoggedIn(force_connect=False):
 	if UBI_TOKEN==None or UBI_EXPIRATION < time.time():
 		UBI_TOKEN=authenticateAll(force_connect=force_connect)
 		updateHeaders()
+	return UBI_EXPIRATION
 	
 def updateHeaders():
 	global HEADERS,UBI_TOKEN
