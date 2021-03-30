@@ -652,7 +652,9 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start,longpoll=10):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&start={start}&longpoll={longpoll}'
+	HOST=f'https://{cluster}/?action=get&ubimobi_access_token={ubimobi_access_token}&game_session_id={game_session_id}&nohttp=false&bucket={bucket}&start={start}'
+	if longpoll > 0:
+		HOST = HOST+f"&longpoll={longpoll}"
 	PAYLOAD='{}'
 	response_body=""
 	try:
