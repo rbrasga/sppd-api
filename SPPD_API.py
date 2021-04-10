@@ -87,7 +87,7 @@ GETTEAMCHAT_CLUSTER={} #dictionary of sessions to cluster URLs
 def setStoredUser(username):
 	global UBI_TOKEN,UBI_EXPIRATION, OAUTH_EXPIRATION
 	global NAME_ON_PLATFORM, PROFILE_ID
-	global USERNAME, PASSWORD
+	global USERNAME, PASSWORD, MASTER_TOKEN
 	UBI_TOKEN=None
 	UBI_EXPIRATION = -1
 	OAUTH_EXPIRATION = -1
@@ -95,6 +95,7 @@ def setStoredUser(username):
 	PROFILE_ID=None
 	USERNAME = username
 	PASSWORD = ""
+	MASTER_TOKEN=None
 
 def updatePaths():
 	for pathx in sys.path:
