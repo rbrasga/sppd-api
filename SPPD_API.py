@@ -634,14 +634,14 @@ def getTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start=-1,end
 	if start != -1 and end != -1:
 		HOST+=f'&start={start}&end={end}'
 	PAYLOAD='{}'
-	response_body=""
+	response_body={}
 	try:
 		global GETTEAMCHAT_CLUSTER
 		if cluster not in GETTEAMCHAT_CLUSTER:
 			GETTEAMCHAT_CLUSTER[cluster] = requests.Session()
 		current_session = GETTEAMCHAT_CLUSTER[cluster]
 		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
-		response_body=r.text
+		response_body=r.json()
 	except:
 		print("SPPD_API.getTeamChat failed")
 	API_LOCK.notify_all()
@@ -657,14 +657,14 @@ def pollTeamChat(cluster,bucket,ubimobi_access_token,game_session_id,start,longp
 	if longpoll > 0:
 		HOST = HOST+f"&longpoll={longpoll}"
 	PAYLOAD='{}'
-	response_body=""
+	response_body={}
 	try:
 		global GETTEAMCHAT_CLUSTER
 		if cluster not in GETTEAMCHAT_CLUSTER:
 			GETTEAMCHAT_CLUSTER[cluster] = requests.Session()
 		current_session = GETTEAMCHAT_CLUSTER[cluster]
 		r = current_session.post(HOST, data=PAYLOAD, headers=HEADERS)
-		response_body=r.text
+		response_body=r.json()
 	except:
 		print("SPPD_API.pollTeamChat failed")
 	API_LOCK.notify_all()
