@@ -429,7 +429,7 @@ def getTeamInit():
 	try:
 		global PDC_PUBLIC_UBISERVICES
 		r = PDC_PUBLIC_UBISERVICES.post(HOST, data=PAYLOAD, headers=HEADERS)
-		response_body=r.text
+		response_body=r.json()
 	except:
 		print("SPPD_API.getTeamInit failed")
 	API_LOCK.notify_all()
@@ -615,7 +615,7 @@ def getUbiMobiAccessToken(profileid):
 	try:
 		global GAMECFG_MOB
 		r = GAMECFG_MOB.get(HOST, headers=HEADERS)
-		response_body=r.text
+		response_body=r.json()
 	except:
 		print("SPPD_API.getUbiMobiAccessToken failed")
 	API_LOCK.notify_all()
@@ -749,7 +749,7 @@ def getUserName(user_id):
 	try:
 		global PUBLIC_UBISERVICES
 		r = PUBLIC_UBISERVICES.get(HOST, headers=HEADERS)
-		response_body=r.text
+		response_body=r.json()
 	except:
 		print("SPPD_API.getUserName failed")
 	API_LOCK.notify_all()
