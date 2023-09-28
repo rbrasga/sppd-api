@@ -77,6 +77,10 @@ HEADERS = {
 	"X-Device" : "131652800",
 	"User-Agent" : "Dalvik/2.1.0 (Linux; U; Android 7.1.1; Pixel XL Build/NOF26V)",
 }
+#URLs
+PDC_PUBLIC_URL="pdc-public.aws-ubiservices.ubi.com"
+PUBLIC_URL="useast1-public.aws-ubiservices.ubi.com"
+GAME_CFG_URL="gamecfg-mob.ubi.com"
 
 #Global Sessions! Yeah Buddy!
 PDC_PUBLIC_UBISERVICES=requests.Session()
@@ -195,7 +199,7 @@ def authenticateGoogle(username,androidId,masterToken, user_agent='Dalvik/2.1.0 
 
 #"expiration":"2019-11-23T09:18:04.0671070Z"
 def authenticateUbisoft(authToken):
-	HOST='https://public-ubiservices.ubi.com/v3/profiles/sessions'
+	HOST=f'https://{PUBLIC_URL}/v3/profiles/sessions'
 	payload_str="{}"
 	
 	HEADERS={
@@ -204,7 +208,7 @@ def authenticateUbisoft(authToken):
 		"X-Unity-Version": "5.6.4p4",
 		"Authorization": f"googlegames t={authToken}",
 		"User-Agent": "Dalvik/2.1.0 (Linux; U; Android 6.0.1; VirtualBox Build/MOB31T)",
-		"Host": "public-ubiservices.ubi.com",
+		"Host": f"{PUBLIC_URL}",
 		"Connection": "Keep-Alive",
 		"Accept-Encoding": "gzip"
 	}
@@ -372,7 +376,7 @@ def authenticateAll(oauth_token_only=False,force_connect=False,tmp_user=None,tmp
 def getTVTLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/team_wars_leaderboard/infinite+c_name+c_banner+c_league+c_members?offset={offset}&limit={limit}'
 	response_body=""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -387,7 +391,7 @@ def getTVTLeaderboardAtOffset(offset=1,limit=50):
 def getTeamWarInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/init'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/teamwar/init'
 	PAYLOAD='{}'
 	response_body=""
 	try:
@@ -403,7 +407,7 @@ def getTeamWarInit():
 def getTeamWarUpdate():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/update'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/teamwar/update'
 	PAYLOAD='{}'
 	response_body=""
 	try:
@@ -423,7 +427,7 @@ def getTeamWarUpdate():
 def getTeamInit():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/init'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/team/init'
 	PAYLOAD='{}'
 	response_body=""
 	try:
@@ -439,7 +443,7 @@ def getTeamInit():
 def getCardRequests():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/requests'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/team/requests'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -454,7 +458,7 @@ def getCardRequests():
 def getTeamDetails(team_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/teams/{team_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/team/teams/{team_id}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -469,7 +473,7 @@ def getTeamDetails(team_id):
 def getTeamID(team_name):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/search?limit=50&offset=0&name={team_name}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/team/search?limit=50&offset=0&name={team_name}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -484,7 +488,7 @@ def getTeamID(team_name):
 def getTeamApplications(ingame_team_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -499,7 +503,7 @@ def getTeamApplications(ingame_team_id):
 def getTeamwarHistory():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/teamwar/history'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/teamwar/history'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -514,7 +518,7 @@ def getTeamwarHistory():
 def getAllEvents():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/update'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/event/update'
 	PAYLOAD='{"language":"en"}'
 	response_body=""
 	try:
@@ -530,7 +534,7 @@ def getAllEvents():
 def getTeamEventParticipation(event):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/events/{event}/teams/leaderboard'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/event/events/{event}/teams/leaderboard'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -545,7 +549,7 @@ def getTeamEventParticipation(event):
 def acceptApplication(ingame_team_id,user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
 	PAYLOAD='{}'
 	response_body = ""
 	try:
@@ -561,7 +565,7 @@ def acceptApplication(ingame_team_id,user_id):
 def rejectApplication(ingame_team_id,user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/applications/profiles/{user_id}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -577,7 +581,7 @@ def setTeamRole(ingame_team_id,user_id,role='regular'): #regular, elder, co_lead
 	API_LOCK.acquire()
 	global HEADERS
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/members/profiles/{user_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}/members/profiles/{user_id}'
 	PAYLOAD='{"role":"%s"}' % role
 	response_body = ""
 	try:
@@ -594,7 +598,7 @@ def setTeamDetails(ingame_team_id,name,countryCode,new_kid_level,description,ban
 	API_LOCK.acquire()
 	global HEADERS
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/clansservice/clans/default/{ingame_team_id}'
 	PAYLOAD='{"name":"%s","countryCode":"%s","metadata":{"new_kid_level":%d,"description":"%s","banner":%d},"applicationStatus":"%s"}' % (name,countryCode,new_kid_level,description,banner,applicationStatus)
 	response_body = ""
 	try:
@@ -610,7 +614,7 @@ def setTeamDetails(ingame_team_id,name,countryCode,new_kid_level,description,ban
 def getUbiMobiAccessToken(profileid):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://gamecfg-mob.ubi.com/profile/?action=register&productid=682&deviceuid={profileid}'
+	HOST=f'https://{GAME_CFG_URL}/profile/?action=register&productid=682&deviceuid={profileid}'
 	response_body = ""
 	try:
 		global GAMECFG_MOB
@@ -708,13 +712,13 @@ def getSeasonOffset():
 	return season
 
 #Seasons (since Stars to MMR Switch)
-#https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}
+#https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}
 #/playerstats2/leaderboards/pvp_ladder_leaderboard/20/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}
 def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 	API_LOCK.acquire()
 	checkLoggedIn()
 	season = getSeasonOffset()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/{season}/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/playerstats2/leaderboards/pvp_ladder_leaderboard/{season}/global/infinite+player_name+team_name+highlight?offset={offset}&limit={limit}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -729,7 +733,7 @@ def getGlobalLeaderboardAtOffset(offset=1,limit=50):
 def getUserDetails(user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/team/members/{user_id}'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/team/members/{user_id}'
 	response_body = ""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -744,7 +748,7 @@ def getUserDetails(user_id):
 def getUserName(user_id):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://public-ubiservices.ubi.com/v1/profiles?profileId={user_id}'
+	HOST=f'https://{PUBLIC_URL}/v1/profiles?profileId={user_id}'
 	response_body = ""
 	try:
 		global PUBLIC_UBISERVICES
@@ -759,7 +763,7 @@ def getUserName(user_id):
 def questStatus(event):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/quest_events/{event}/status'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/event/quest_events/{event}/status'
 	response_body=""
 	try:
 		global PDC_PUBLIC_UBISERVICES
@@ -775,7 +779,7 @@ def questStatus(event):
 def postQuestClose(event, quest):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/event/quest_events/{event}/quests/close'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/event/quest_events/{event}/quests/close'
 	PAYLOAD='{"quests":[%d]}' % quest
 	response_body=""
 	try:
@@ -792,7 +796,7 @@ def postQuestClose(event, quest):
 def missionInit(language):
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/mission/init'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/mission/init'
 	PAYLOAD='{"language":"%s"}' % language
 	response_body=""
 	try:
@@ -809,7 +813,7 @@ def missionInit(language):
 def getPVPPack():
 	API_LOCK.acquire()
 	checkLoggedIn()
-	HOST=f'https://pdc-public-ubiservices.ubi.com/v1/{SPACES_SANDBOX}/pvp2/cardpack/claim'
+	HOST=f'https://{PDC_PUBLIC_URL}/v1/{SPACES_SANDBOX}/pvp2/cardpack/claim'
 	PAYLOAD='{}'
 	response_body=""
 	try:
