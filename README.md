@@ -1,3 +1,5 @@
+IMPORTANT: SPPD-API is currently broken. I have no way to resolve this issue due to a recent change in the SPPD app. I apologize for the inconvenience. We had a good run, and knew it wouldn't last forever
+
 <a href="https://sppdreplay.net"><img src="https://i.imgur.com/CRA6jPP.png" title="SPPD Replay" alt="SPPDReplay"></a>
 
 # REST API for South Park Phone Destroyer (SPPD)
